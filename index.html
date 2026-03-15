@@ -1266,7 +1266,7 @@ function loginScreenRestore(){
 <!-- ═══ SETUP SCREEN (First Launch) ═══ -->
 <div class="screen" id="setupScreen">
   <div class="glass">
-    <div class="logo-c"><span class="em">🏪</span><h1>SmartStorePOS Gold</h1><p class="sub">نظام إدارة المتاجر الذكي</p><span class="vbadge">v1.1.112 — §FIX: Reports PDF auto-print dialog on mobile</span></div>
+    <div class="logo-c"><span class="em">🏪</span><h1>SmartStorePOS Gold</h1><p class="sub">نظام إدارة المتاجر الذكي</p><span class="vbadge">v1.1.113 — §FIX: توحيد تعريف الأسبوع في جميع الصفحات</span></div>
     <div class="sdots"><div class="sdot act" id="d1"></div><div class="sdot" id="d2"></div></div>
 
     <!-- Step 1: Owner Google Login (sp0 removed — info merged into login card) -->
@@ -4421,7 +4421,7 @@ function nowLocalFull(){
 // Schema version: bumped when DB structure changes.
 // ════════════════════════════════════════════════════════════════════
 const SCHEMA_VERSION = 3; // v3: integer cents storage, timestamp seq, two-phase migration
-const APP_VERSION    = '1.1.112'; // §v1.1.112: exportRptPDF auto-print on mobile | §v1.1.111: Reports PDF white bg fix
+const APP_VERSION    = '1.1.113'; // §v1.1.113: Unify week definition — Dashboard now uses start-of-week (Sun) matching Cash Balance | §v1.1.112: Reports auto-print
 // ═══════════════════════════════════════════════════════════════════════
 // §ROOT-CAUSE-FIX v10.8 — NOTES/RETURNS UI NOT UPDATING (FINAL FIX)
 // ───────────────────────────────────────────────────────────────────────
@@ -7676,8 +7676,14 @@ const DASH = {
     const now = new Date();
     let fromDate = null, toDate = null;
     // Use local date for period filters (matches invoice.date which is also local)
-    if(period==='today'){ fromDate = todayISO(); }
-    else if(period==='week'){ const d=new Date(now); d.setDate(d.getDate()-7); fromDate=fmtLocalDate(d.toISOString()); }
+    if(period==='today'){ fromDate = todayISO(); toDate = todayISO(); }
+    else if(period==='week'){
+      // §v1.1.113-FIX: Use start-of-current-week (Sunday) — matches Cash Balance definition
+      const _wd = new Date(now); const _day = _wd.getDay(); // 0=Sun
+      _wd.setDate(_wd.getDate() - _day);
+      fromDate = fmtLocalDate(_wd.toISOString());
+      toDate   = todayISO();
+    }
     else if(period==='month'){ const d=new Date(now); d.setDate(d.getDate()-30); fromDate=fmtLocalDate(d.toISOString()); }
     else if(period==='year'){ const d=new Date(now); d.setFullYear(d.getFullYear()-1); fromDate=fmtLocalDate(d.toISOString()); }
     else if(period==='custom'){ fromDate=UI.val('dashDF')||null; toDate=UI.val('dashDT')||null; }
