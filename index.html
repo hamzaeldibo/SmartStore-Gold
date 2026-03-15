@@ -1266,7 +1266,7 @@ function loginScreenRestore(){
 <!-- ═══ SETUP SCREEN (First Launch) ═══ -->
 <div class="screen" id="setupScreen">
   <div class="glass">
-    <div class="logo-c"><span class="em">🏪</span><h1>SmartStorePOS Gold</h1><p class="sub">نظام إدارة المتاجر الذكي</p><span class="vbadge">v1.1.111 — §FIX: Reports PDF white background · readable text</span></div>
+    <div class="logo-c"><span class="em">🏪</span><h1>SmartStorePOS Gold</h1><p class="sub">نظام إدارة المتاجر الذكي</p><span class="vbadge">v1.1.112 — §FIX: Reports PDF auto-print dialog on mobile</span></div>
     <div class="sdots"><div class="sdot act" id="d1"></div><div class="sdot" id="d2"></div></div>
 
     <!-- Step 1: Owner Google Login (sp0 removed — info merged into login card) -->
@@ -4421,7 +4421,7 @@ function nowLocalFull(){
 // Schema version: bumped when DB structure changes.
 // ════════════════════════════════════════════════════════════════════
 const SCHEMA_VERSION = 3; // v3: integer cents storage, timestamp seq, two-phase migration
-const APP_VERSION    = '1.1.111'; // §v1.1.111: exportRptPDF CSS fix — CSS vars + force white bg (dark-mode bleed fix) | §v1.1.110: hash chain rebuild
+const APP_VERSION    = '1.1.112'; // §v1.1.112: exportRptPDF auto-print on mobile | §v1.1.111: Reports PDF white bg fix
 // ═══════════════════════════════════════════════════════════════════════
 // §ROOT-CAUSE-FIX v10.8 — NOTES/RETURNS UI NOT UPDATING (FINAL FIX)
 // ───────────────────────────────────────────────────────────────────────
@@ -14962,7 +14962,8 @@ function exportRptPDF(){
   if(!win){ TOAST.err('يرجى السماح بالنوافذ المنبثقة'); return; } // §v1.1.95-FIX1
   win.document.write(printHtml);
   win.document.close();
-  win.focus();
+  // §v1.1.112-FIX: Auto-trigger print dialog after fonts load (same pattern as _openPrintWindow)
+  win.addEventListener('load', () => { setTimeout(() => { win.focus(); win.print(); }, 700); });
 }
 const RPT = RPTS;
 
